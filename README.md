@@ -2,7 +2,7 @@
 
 Coursework for SOCS-SHU 205, *How Machines Map the Human World*, NYU Shanghai.
 
-**Live site:** https://YOUR-USERNAME.github.io/spatial-portfolio/
+**Live site:** https://ahahhihihi.github.io/socs-205-portfolio/
 
 ## What is here
 
