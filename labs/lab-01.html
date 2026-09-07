@@ -31,7 +31,7 @@
 
     <!-- EDIT THIS: a title that says what you found, not what you did.
          "Where the metro does not go" beats "Lab 1 report". -->
-    <h1>Exploring Urban Green Spaces in Shanghai</h1>
+    <h1>Mapping Shanghai Metro Station Accessibility</h1>
 
     <!-- ============================================================
          The six parts. Every entry in this course has all six.
@@ -41,21 +41,22 @@
 
     <h2>The question</h2>
     <p>
-      Where are the major green spaces located within Shanghai's urban core?
+      Where are Shanghai metro station entrances concentrated, and which areas have the highest density of access points?
     </p>
 
     <h2>The data</h2>
     <p>
-      OpenStreetMap data (2024) showing parks and green spaces in Shanghai.
-      The data is open-source under the Open Database License. Missing: private
-      green spaces, rooftop gardens, and small pocket parks not mapped in OSM.
+      Shanghai metro station data from OpenStreetMap contributors via Overpass API
+      (as of 2026-08-31). The data is open-source under the Open Database License.
+      Source: https://www.openstreetmap.org/copyright. Missing: exact entrance
+      counts for multi-entrance stations and accessibility information for each entrance.
     </p>
 
     <h2>The method</h2>
     <p>
-      Used QGIS to filter OpenStreetMap data for leisure=park features within
-      Shanghai's administrative boundaries. Projection: WGS 84 (EPSG:4326).
-      Simple visualization with green fill to highlight park areas.
+      Used Kepler.gl to visualize Shanghai metro station data from OpenStreetMap.
+      Projection: WGS 84 (EPSG:4326). Created a heatmap to show concentration
+      of metro entrances, with point markers for individual station locations.
     </p>
 
     <!-- ============================================================
@@ -72,30 +73,35 @@
          Delete whichever one you are not using.
          ============================================================ -->
     <figure>
-      <img src="map-01.svg" alt="Map showing green spaces as green polygons within Shanghai's urban area, with major parks highlighted.">
+      <img src="lab-01-map.png" alt="Heatmap showing concentration of Shanghai metro station entrances, with highest density in central business districts and along major transit corridors.">
       <figcaption>
-        Major parks and green spaces in central Shanghai. The largest green areas
-        are concentrated along the Huangpu River and in western districts.
+        Shanghai metro station entrance density. Red areas show highest concentration
+        of access points, particularly in Pudong, People's Square, and along Line 2.
       </figcaption>
     </figure>
 
     <h2>What I found</h2>
     <p>
-      Shanghai has significant green space coverage, particularly along the
-      Huangpu River and in western districts like Changning and Xuhui.
-      The distribution shows planning efforts to integrate nature into urban areas.
+      Metro station entrances are most concentrated in central business districts,
+      particularly around People's Square, Nanjing Road, and Lujiazui in Pudong.
+      The density pattern follows major commercial and residential corridors,
+      with fewer access points in newer suburban developments.
     </p>
 
     <h2>What this does not show</h2>
     <div class="limits">
       <p>
-        This map only shows publicly accessible parks from OpenStreetMap.
-        It doesn't include private gardens, rooftop green spaces, or small
-        community gardens. The data quality varies by neighborhood, and
-        newer developments may not be fully mapped.
+        This map shows station locations but not actual entrance counts for
+        multi-entrance stations. It doesn't indicate which entrances have
+        elevator access, escalators, or other accessibility features.
+        The data may not include recently opened stations or entrances.
       </p>
       <p>
-        <strong>AI use:</strong> No AI tools were used for this entry.
+        <strong>AI use:</strong> AI-assisted for syntax and formatting with Deepseek. 
+                                  I verified it by checking the page on a
+                                  phone and a laptop, and confirming no external
+                                  resources were added.
+
       </p>
     </div>
 
