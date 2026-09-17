@@ -3,10 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lab 01 · Ithemba Ndakavambaani</title>
-
-<!-- Note the ../ — this page is inside the labs folder, so it has to
-     look one level up to find the stylesheet. -->
+<title>Lab 1 · Soho cholera · Ithemba Ndakavambaani</title>
 <link rel="stylesheet" href="../style.css">
 </head>
 
@@ -27,83 +24,97 @@
 <article class="entry">
   <div class="wrap wrap-narrow">
 
-    <p class="kicker">Lab 01 · September 2026</p>
-
-    <!-- EDIT THIS: a title that says what you found, not what you did.
-         "Where the metro does not go" beats "Lab 1 report". -->
-    <h1>Mapping Shanghai Metro Station Accessibility</h1>
-
-    <!-- ============================================================
-         The six parts. Every entry in this course has all six.
-         Do not delete a heading — if a section is thin, that is
-         information too.
-         ============================================================ -->
+    <p class="kicker">Lab 1 · September 2026</p>
+    <h1>How the area of influence changes the Soho cholera map</h1>
 
     <h2>The question</h2>
-    <p>
-      Where are Shanghai metro station entrances concentrated, and which areas have the highest density of access points?
-    </p>
+    <p>In Soho, London how consistently does the heat map point toward the pump nearest 43 Broadwick Street when the area-of-influence setting changes?</p>
 
     <h2>The data</h2>
-    <p>
-      Shanghai metro station data from OpenStreetMap contributors via Overpass API
-      (as of 2026-08-31). The data is open-source under the Open Database License.
-      Source: https://www.openstreetmap.org/copyright. Missing: exact entrance
-      counts for multi-entrance stations and accessibility information for each entrance.
-    </p>
+    <p>The map contains four layers: Snow_Map, Public water pumps, Cholera cases by address, and Soho. The cholera layer contains 322 addresses and uses <code>Num_Cases</code> to represent the number of deaths recorded at each address. The pump layer contains twelve public water pumps. The map is a public Esri web map.</p>
+    <p>A provenance issue is that the historical geometry is paired with a modern street-name attribute: the pop-up identifies the relevant pump as <strong>43 Broadwick Street</strong>, although the street was called Broad Street in 1854.</p>
 
     <h2>The method</h2>
-    <p>
-      Used Kepler.gl to visualize Shanghai metro station data from OpenStreetMap.
-      Projection: WGS 84 (EPSG:4326). Created a heatmap to show concentration
-      of metro entrances, with point markers for individual station locations.
-    </p>
+    <p>I used ArcGIS Online Map Viewer and selected the Cholera cases by address layer. I created a weighted heat map using <code>Num_Cases</code>, rather than counting each address as one equal point. The underlying procedure is weighted kernel density estimation. I tested the Area of influence slider at three positions: far left, middle and far right, keeping the same Soho extent for each screenshot.</p>
+    <p>The screenshots record the slider positions because Map Viewer does not show the bandwidth as a numerical distance.</p>
 
-    <!-- ============================================================
-         YOUR MAP
-         Two options:
+    <h2>The map</h2>
+    <h3>Live ArcGIS map: Soho cholera</h3>
+    <iframe width="700" height="600" allow="local-network-access; geolocation" title="Lab 1 · Soho cholera · Ithemba" src="https://nyuds.maps.arcgis.com/apps/mapviewer/index.html?configurableview=true&webmap=325c27ab578d41cc8f5348c9752c48c0&theme=dark&bookmarks=true&legend=true&share=true&center=-0.13571557487291788,51.51313786046998&scale=9027.977411"></iframe>
+    <p><em>Interactive ArcGIS web map for the Soho cholera analysis.</em></p>
 
-         1. An image. Export a PNG from ArcGIS or QGIS, put it in this
-            labs folder, and change the src below to your filename
-            (for example src="map-01.png").
-
-         2. A live web map. Publish it in ArcGIS Online, choose Share,
-            then Embed, and paste the src URL into the <iframe> line.
-
-         Delete whichever one you are not using.
-         ============================================================ -->
     <figure>
-      <img src="lab-01-map.png" alt="Heatmap showing concentration of Shanghai metro station entrances, with highest density in central business districts and along major transit corridors.">
-      <figcaption>
-        Shanghai metro station entrance density. Red areas show highest concentration
-        of access points, particularly in Pudong, People's Square, and along Line 2.
-      </figcaption>
+      <img src="media/lab1/left.png" alt="Soho map screenshot at the far-left area-of-influence setting; the heat surface is not visibly present in this screenshot.">
+      <figcaption>Far-left setting.</figcaption>
     </figure>
 
+    <figure>
+      <img src="media/lab1/centre.png" alt="Soho weighted cholera heat map at the middle area-of-influence setting, showing a concentrated and irregular red and magenta surface around the central streets.">
+      <figcaption>Middle setting. The weighted surface becomes more irregular, with several local peaks.</figcaption>
+    </figure>
+
+    <figure>
+      <img src="media/lab1/right.png" alt="Soho weighted cholera heat map at the far-right area-of-influence setting, showing a smoother and broader central concentration.">
+      <figcaption>Far-right setting. The weighted surface is smoother and broader, with fewer distinct peaks.</figcaption>
+    </figure>
+
+    <h2>Sensitivity table</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Area of influence</th>
+          <th>Pumps in the hottest band</th>
+          <th>43 Broadwick nearest the centre?</th>
+          <th>What this map alone suggests</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Far left</td>
+          <td>1</td>
+          <td>Yes</td>
+          <td>The heatmap is highly localized, with small hotspots around individual or nearby cases. The broader concentration pattern is harder to interpret.</td>
+        </tr>
+        <tr>
+          <td>Middle</td>
+          <td>1</td>
+          <td>Yes</td>
+          <td>The result is more fragmented and sensitive to local clusters.</td>
+        </tr>
+        <tr>
+          <td>Far right</td>
+          <td>1</td>
+          <td>Yes</td>
+          <td>The result is smoother and less detailed, so local structure is hidden.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>China map and Chongqing measurement</h2>
+    <p>The second part of Lab 1 uses a China map with country boundaries, administrative units, rivers, roads and city points. For Chongqing, my measured area was <strong>87,055.08 km²</strong>, compared with the official figure supplied by the lab of <strong>82,400 km²</strong>. The difference is <strong>4,655.08 km²</strong> of the official area. The population value I recorded for Chongqing was <strong>32,054,159</strong>.</p>
+    <figure>
+      <img src="media/lab1/china-map.png" alt="China map showing roads, rivers, city locations, and a highlighted Chongqing location.">
+      <figcaption>China in layers, showing the geographic context and city points used in the second map exercise.</figcaption>
+    </figure>
+    <figure>
+      <img src="media/lab1/chongqing-measurement.png" alt="Measured Chongqing municipality polygon with an ArcGIS measurement panel showing an area of 87,055.08 square kilometres.">
+      <figcaption>Chongqing measurement in ArcGIS Map Viewer: 87,055.08 km².</figcaption>
+    </figure>
+    <p>Using the measured area, the approximate municipal average density is <strong>368 people per km²</strong> (32,054,159 ÷ 87,055.08). This figure describes the municipality as a whole, not only the built-up urban area.</p>
+
+    <h3>Live ArcGIS map: China in layers</h3>
+    <iframe width="700" height="600" allow="local-network-access; geolocation" title="Lab 1 · China in layers · Ithemba" src="https://www.arcgis.com/apps/mapviewer/index.html?configurableview=true&webmap=f43a4203c16340518e8f90454826be25&theme=dark&bookmarks=true&legend=true&share=true&basemaps=true&center=104.19425421830263,37.945344138944286&scale=73957190.948944"></iframe>
+    <p><em>Interactive ArcGIS web map for the China in layers exercise.</em></p>
+
     <h2>What I found</h2>
-    <p>
-      Metro station entrances are most concentrated in central business districts,
-      particularly around People's Square, Nanjing Road, and Lujiazui in Pudong.
-      The density pattern follows major commercial and residential corridors,
-      with fewer access points in newer suburban developments.
-    </p>
+<p>Changing the area of influence changes how the same cholera-address data looks and is understood. The middle setting makes a more uneven surface with several peaks. The far-right setting makes a wider, smoother cluster. This means a heat map is not a direct measurement at each colored spot. It is a modeled surface. Its shape depends on the bandwidth the map-maker chooses.</p>
 
-    <h2>What this does not show</h2>
-    <div class="limits">
-      <p>
-        This map shows station locations but not actual entrance counts for
-        multi-entrance stations. It doesn't indicate which entrances have
-        elevator access, escalators, or other accessibility features.
-        The data may not include recently opened stations or entrances.
-      </p>
-      <p>
-        <strong>AI use:</strong> AI-assisted for syntax and formatting with Deepseek. 
-                                  I verified it by checking the page on a
-                                  phone and a laptop, and confirming no external
-                                  resources were added.
+<h2>What this does not show</h2>
+<p>The map does not prove that the heat map found the pump by itself. Snow had already looked at addresses and built his argument before the famous map was published. The surface also does not show cause, water flow, individual travel routes, or whether every old address was placed on the map correctly. Using a modern street name for a historical place is another limit.</p>
 
-      </p>
-    </div>
+    <h2>Reflection and AI-usage</h2>
+
+<p>The reflection and AI-usage disclosure have been kept private and submitted through Brightspace rather than published on this page.</p>
 
     <a class="back" href="../index.html#labs">← Back to all labs</a>
 

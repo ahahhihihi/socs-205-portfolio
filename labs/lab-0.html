@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 0 · Ithemba Ndakavambaani</title>
+
+<!-- Note the ../ — this page is inside the labs folder, so it has to
+     look one level up to find the stylesheet. -->
+<link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Ithemba Ndakavambaani</a>
+    <nav>
+      <a href="../index.html">Home</a>
+      <a href="../index.html#labs">Labs</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<article class="entry">
+  <div class="wrap wrap-narrow">
+
+    <p class="kicker">Lab 0 · September 2026</p>
+
+    <!-- EDIT THIS: a title that says what you found, not what you did.
+         "Where the metro does not go" beats "Lab 1 report". -->
+    <h1>Mapping Shanghai Metro Station Accessibility</h1>
+
+    <!-- ============================================================
+         The six parts. Every entry in this course has all six.
+         Do not delete a heading — if a section is thin, that is
+         information too.
+         ============================================================ -->
+
+    <h2>The question</h2>
+    <p>
+      Where are Shanghai metro station entrances concentrated, and which areas have the highest density of access points?
+    </p>
+
+    <h2>The data</h2>
+    <p>
+      Shanghai metro station data from OpenStreetMap contributors via Overpass API
+      (as of 2026-08-31). The data is open-source under the Open Database License.
+      Source: https://www.openstreetmap.org/copyright. Missing: exact entrance
+      counts for multi-entrance stations and accessibility information for each entrance.
+    </p>
+
+    <h2>The method</h2>
+    <p>
+      Used Kepler.gl to visualize Shanghai metro station data from OpenStreetMap.
+      Projection: WGS 84 (EPSG:4326). Created a heatmap to show concentration
+      of metro entrances, with point markers for individual station locations.
+    </p>
+
+    <!-- ============================================================
+         YOUR MAP
+         Two options:
+
+         1. An image. Export a PNG from ArcGIS or QGIS, put it in this
+            labs folder, and change the src below to your filename
+            (for example src="map-01.png").
+
+         2. A live web map. Publish it in ArcGIS Online, choose Share,
+            then Embed, and paste the src URL into the <iframe> line.
+
+         Delete whichever one you are not using.
+         ============================================================ -->
+    <figure>
+      <img src="media/lab0/lab-0-map.png" alt="Heatmap showing concentration of Shanghai metro station entrances, with highest density in central business districts and along major transit corridors.">
+      <figcaption>
+        Shanghai metro station entrance density. Red areas show highest concentration
+        of access points, particularly in Pudong, People's Square, and along Line 2.
+      </figcaption>
+    </figure>
+
+    <h2>What I found</h2>
+    <p>
+      Metro station entrances are most concentrated in central business districts,
+      particularly around People's Square, Nanjing Road, and Lujiazui in Pudong.
+      The density pattern follows major commercial and residential corridors,
+      with fewer access points in newer suburban developments.
+    </p>
+
+    <h2>What this does not show</h2>
+    <div class="limits">
+      <p>
+        This map shows station locations but not actual entrance counts for
+        multi-entrance stations. It doesn't indicate which entrances have
+        elevator access, escalators, or other accessibility features.
+        The data may not include recently opened stations or entrances.
+      </p>
+      <p>
+        <strong>AI use:</strong> AI-assisted for syntax and formatting with Deepseek. 
+                                  I verified it by checking the page on a
+                                  phone and a laptop, and confirming no external
+                                  resources were added.
+
+      </p>
+    </div>
+
+    <a class="back" href="../index.html#labs">← Back to all labs</a>
+
+  </div>
+</article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap wrap-narrow">
+    <p>Ithemba Ndakavambaani · SOCS-SHU 205 · NYU Shanghai · Fall 2026</p>
+  </div>
+</footer>
+
+</body>
+</html>
