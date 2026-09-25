@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 2 · Four maps of 2016 · Ithemba Ndakavambaani</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Ithemba Ndakavambaani</a>
+    <nav>
+      <a href="../index.html">Home</a>
+      <a href="../index.html#labs">Labs</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<article class="entry">
+  <div class="wrap wrap-narrow">
+
+    <p class="kicker">Lab 2 · September 2026</p>
+    <h1>One dataset, four maps: How display rules change the 2016 election map</h1>
+
+    <h2>The question</h2>
+    <p>Where was voting support geographically concentrated across United States counties in the 2016 presidential election?</p>
+
+    <h2>The data</h2>
+    <p>The main dataset is a public teaching layer called <a href="https://nyuds.maps.arcgis.com/home/item.html?id=bdf1ada7cac14852be1d7f58e776890f" target="_blank" rel="noopener"><code>election_2016</code></a>, published on ArcGIS. It has 3,139 county records. When checking the table before mapping, there are three clear problems:</p>
+    <ul>
+      <li><strong>Empty column:</strong> The table has a field called <code>DEM_votes</code>, but it is completely empty in all 3,139 rows. The real vote count is stored in a different column called <code>votes_DEM</code>.</li>
+      <li><strong>Wrong label on units:</strong> The columns <code>DEM_per</code> and <code>GOP_per</code> are shown with the labels <code>% DEM</code> and <code>% GOP</code>. But the numbers inside are proportions between 0 and 1, not percentages. For example, Los Angeles County is listed as <code>0.7141</code> instead of <code>71.41%</code>. If a map legend copies this label directly, it is off by a factor of 100.</li>
+      <li><strong>Alaska repeated 28 times:</strong> Alaska does not report presidential votes by borough; it reports by state legislative districts. The person who made this table took the total vote for the whole state (93,003 Democratic votes, 130,413 Republican votes, and <code>0.377159</code> Democratic share) and copied those exact same numbers into all 28 boroughs. On a map, this makes Alaska look completely uniform. In addition, adding up the column counts Alaska 28 times.</li>
+    </ul>
+    <p><strong>The reconciliation gap:</strong> If you add up the columns in the table, you get 65,030,312 Democratic votes and 64,716,166 Republican votes. If you remove the 27 duplicate copies of Alaska, the totals drop to about 62.5 million Democratic votes and 61.2 million Republican votes. But the official certified result for the country was 65,853,514 Democratic votes and 62,984,828 Republican votes. The table is missing several million votes and does not match the official totals. It works well to teach mapping rules, but it is not accurate enough to state official election results.</p>
+
+    <h2>The method</h2>
+    <p>I mapped this same table of 3,139 counties in four different ways to show how the choice of map type changes what the viewer sees:</p>
+    <ol>
+      <li><strong>Predominant category:</strong> Uses color (hue) to show who won each county (red for Republican, blue for Democratic), and uses transparency to show how large the winning margin was.</li>
+      <li><strong>Graduated symbols:</strong> Uses circle size to show the total number of votes cast (<code>Total_Votes</code>). This separates the number of voters from the physical land area of the county.</li>
+      <li><strong>Standardised score (z-score):</strong> Uses a two-color diverging scale to show how far each county was from the average county. I used this expression:
+        <pre><code>// Standardised score for % DEM, 2016
+var mean = 0.3174;
+var sd   = 0.1527;
+return ($feature.DEM_per - mean) / sd;</code></pre>
+        These z-scores are measured against the unweighted average of all 3,139 counties (mean = 31.74%, standard deviation = 15.27%), not against the national popular vote.
+      </li>
+      <li><strong>Cartogram:</strong> Uses state-level totals from the csv used to generate the map (with Alaska's duplicates removed) in the tool <a href="https://go-cart.io" target="_blank" rel="noopener">go-cart.io</a>. Each state is resized by its total votes (<code>Votes_total</code>) and colored by its Democratic share (<code>Pct_DEM</code>) divided into five equal groups (quintiles).</li>
+    </ol>
+
+    <h2>The map</h2>
+
+    <h3>Live ArcGIS Map: Four maps of 2016</h3>
+    <iframe width="700" height="600" style="max-width: 100%; border: 1px solid #ccc;" allow="local-network-access; geolocation" title="Lab 2 · Four maps of 2016 · Ithemba" src="https://nyuds.maps.arcgis.com/apps/mapviewer/index.html?configurableview=true&webmap=bdf1ada7cac14852be1d7f58e776890f&theme=dark&heading=true&legend=true&share=true&scroll=false&center=-98.47434640375761,39.57808484947032&scale=18489297.737236"></iframe>
+    <p><em>Interactive ArcGIS web map: <a href="https://nyuds.maps.arcgis.com/apps/mapviewer/index.html?webmap=bdf1ada7cac14852be1d7f58e776890f" target="_blank" rel="noopener">Open Lab 2 Web Map in Map Viewer</a>.</em></p>
+
+    <h3>Map 1: Winner by county</h3>
+    <figure>
+      <img src="media/lab2/map1_predominant.png" alt="US county map showing red across most land area with blue in major cities and minority areas.">
+      <figcaption>Map 1 · Predominant category. Visual channel: Hue (color). Red shows a Republican win; blue shows a Democratic win. Transparency shows the strength of the win (vote share from 0.50 to 0.84+).</figcaption>
+    </figure>
+
+    <h3>Map 2: Total votes using circle size</h3>
+    <figure>
+      <img src="media/lab2/map2_graduated_national.png" alt="Proportional symbol map of the US showing large circles in big cities and tiny dots in rural counties.">
+      <figcaption>Map 2A · Graduated symbols (national view). Visual channel: Size. Circle size shows total votes cast (count: 64 to 2,652,072 votes).</figcaption>
+    </figure>
+
+    <figure>
+      <img src="media/lab2/map2_graduated_ny.png" alt="Close-up of New York area where circles overlap heavily.">
+      <figcaption>Map 2B · Graduated symbols (New York detail). Circles overlap in dense cities. This map fixes the problem of land size, but creates a new problem where symbols cover each other.</figcaption>
+    </figure>
+
+    <h3>Map 3: Standardised score (difference from county average)</h3>
+    <figure>
+      <img src="media/lab2/map3_zscore.png" alt="Diverging map showing standard deviations from the average county vote.">
+      <figcaption>Map 3 · Standardised score. Visual channel: Value (lightness) and diverging color. The pale middle is z = 0 (the average county, at 31.74% Democratic vote share; standard deviation = 15.27%). Unit: standard deviations (z-score).</figcaption>
+    </figure>
+
+    <h3>Map 4: State cartogram resized by votes</h3>
+    <figure>
+      <img src="media/lab2/map4_cartogram.png" alt="Cartogram where states are resized according to total votes cast.">
+      <figcaption>Map 4 · Density-equalised cartogram from go-cart.io. Visual channel: Area. Each state's area matches its total votes cast. Colors show Democratic vote share in 5 quintiles (&lt;34.5%, 34.5–42.2%, 42.2–47.6%, 47.6–54.5%, ≥54.5%).</figcaption>
+    </figure>
+
+    <h3>Live Go-Cart Cartogram Embed</h3>
+    <iframe src="https://go-cart.io/view/key/1790316065953Kn4LQkSDkG8s4vZgPAe/embed?by=Pct_DEM" width="800" height="550" style="max-width: 100%; border: 1px solid black;"></iframe>
+    <p><em>Interactive state-level election cartogram embedded directly from go-cart.io.</em></p>
+
+    <h2>Sensitivity check: Three classification schemes</h2>
+    <p>Grouping the Democratic vote proportion (<code>DEM_per</code>) into 5 classes using different mathematical rules changes the impression of the map completely:</p>
+
+    <figure>
+      <img src="media/lab2/class_natural_breaks.png" alt="ArcGIS Natural breaks classification dialog and map.">
+      <figcaption>Natural breaks: Groups values by finding natural gaps in the data (cut values: 0.206, 0.314, 0.438, 0.596).</figcaption>
+    </figure>
+
+    <figure>
+      <img src="media/lab2/class_quantile.png" alt="Quantile classification dialog and map showing equal number of counties per class.">
+      <figcaption>Quantile: Puts the exact same number of counties (~628) into each of the 5 classes (cut values: 0.190, 0.250, 0.327, 0.430).</figcaption>
+    </figure>
+
+    <figure>
+      <img src="media/lab2/class_equal_interval.png" alt="Equal interval classification dialog and map showing almost all counties in light blue.">
+      <figcaption>Equal interval: Divides the range of numbers into 5 equal steps of about 0.178 (cut values: 0.210, 0.390, 0.569, 0.749).</figcaption>
+    </figure>
+
+    <h3>Classification sensitivity table</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Scheme</th>
+          <th>Four break values</th>
+          <th>Counties in top class</th>
+          <th>What this map appears to argue</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Equal interval</td>
+          <td>0.210, 0.390, 0.569, 0.749</td>
+          <td>43</td>
+          <td>Strong Democratic support is very rare and exists only in a few isolated cities. Almost the whole country looks solidly Republican.</td>
+        </tr>
+        <tr>
+          <td>Quantile</td>
+          <td>0.190, 0.250, 0.327, 0.430</td>
+          <td>642</td>
+          <td>Democratic support is widespread across the country. Any county with at least 43% Democratic vote gets grouped into the highest category.</td>
+        </tr>
+        <tr>
+          <td>Natural breaks</td>
+          <td>0.206, 0.314, 0.438, 0.596</td>
+          <td>198</td>
+          <td>Shows natural groupings: strongly conservative rural areas, competitive suburbs, and heavily Democratic urban centers.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Comparing the four maps</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Map</th>
+          <th>Visual channel</th>
+          <th>What it makes easy to see</th>
+          <th>What it hides or distorts</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1 · Predominant category</td>
+          <td>Hue (color)</td>
+          <td>Which candidate won the most votes in each county.</td>
+          <td>Hides population density and third-party voters (over 10% of votes in 78 counties). Big, empty rural counties dominate the view.</td>
+        </tr>
+        <tr>
+          <td>2 · Graduated symbol</td>
+          <td>Size</td>
+          <td>Where the largest numbers of voters live, without letting big rural counties take over.</td>
+          <td>Circles overlap heavily in dense urban areas like New York, making them hard to read.</td>
+        </tr>
+        <tr>
+          <td>3 · Standardised score</td>
+          <td>Value (lightness)</td>
+          <td>Which counties voted above or below the national county average.</td>
+          <td>The neutral center (z = 0) is a 31.7% Democratic vote, which is not an election tie (50%) or the national popular vote (~48%).</td>
+        </tr>
+        <tr>
+          <td>4 · Cartogram</td>
+          <td>Area</td>
+          <td>Gives each voter equal visual weight by resizing states to match their vote count.</td>
+          <td>Distorts geographic shapes and borders, making states harder to recognize.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Disclosure block</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Report</th>
+          <th>Choice</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>The scheme, named</td>
+          <td>Natural breaks</td>
+        </tr>
+        <tr>
+          <td>The class count, and why</td>
+          <td>5 classes; it shows real groupings in the data while keeping the colors easy to tell apart.</td>
+        </tr>
+        <tr>
+          <td>One alternative scheme, mapped</td>
+          <td>Quantile; setting the top cut at 0.43 put 642 counties into the top class instead of 198.</td>
+        </tr>
+        <tr>
+          <td>The claim you would still make if scheme changed</td>
+          <td>High Democratic vote shares stay concentrated in big metropolitan centers and minority-majority rural counties, no matter which grouping method is used.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>What I found</h2>
+    <p>There is a large contrast between land area and human votes. Donald Trump won 2,555 counties (81.4%), while Hillary Clinton won 408 counties (13.0%). But Clinton won the national popular vote by over 2.8 million votes. Map 1 makes the country look almost entirely red because large rural counties take up most of the page. Loving County, Texas (64 voters) takes up more space than Kings County, New York (over 600,000 votes). The classification scheme also changes the story: Equal Interval shows only 43 counties in the top class, while Quantile shows 642 counties in the top class by labeling a 43% minority vote as "high".</p>
+
+    <h2>What this does not show</h2>
+    <p>None of these maps show third-party voters, even though third parties won more than 10% of the vote in 78 counties. They do not show people who did not vote or who were not allowed to vote. They also treat each county as a single flat unit, hiding differences between cities and suburbs inside the same county. Lastly, the dataset repeats Alaska's state total across 28 boroughs and is missing several million votes compared to the official national results.</p>
+
+    <h2>Reflection and AI-usage</h2>
+
+<p>The reflection and AI-usage disclosure have been kept private and submitted through Brightspace rather than published on this page.</p>
+
+    <a class="back" href="../index.html#labs">← Back to all labs</a>
+
+  </div>
+</article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap wrap-narrow">
+    <p>Ithemba Ndakavambaani · SOCS-SHU 205 · NYU Shanghai · Fall 2026</p>
+  </div>
+</footer>
+
+</body>
+</html>
