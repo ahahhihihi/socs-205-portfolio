@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 3 · One perimeter, three answers · Ithemba Ndakavambaani</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Ithemba Ndakavambaani</a>
+    <nav>
+      <a href="../index.html">Home</a>
+      <a href="../index.html#labs">Labs</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<article class="entry">
+  <div class="wrap wrap-narrow">
+
+    <p class="kicker">Lab 3 · October 2026</p>
+    <h1>One perimeter, three answers: Projection, resolution, and elevation across the Soberanes Fire</h1>
+
+    <h2>The question</h2>
+    <p>How much total land area burned within the perimeter of the 2016 Soberanes Fire in the Santa Lucia Range of Monterey County, California, when measured across different coordinate reference frames, raster sensor resolutions, and topographic slopes?</p>
+
+    <h2>The data</h2>
+    <p>Three public datasets and web services were analyzed in this workflow:</p>
+    <ul>
+      <li><strong>Burn perimeter vector layer:</strong> Published by Esri as <a href="https://arcgis.com/home/item.html?id=soberanes_perimeter" target="_blank" rel="noopener"><code>Soberanes_Perimeter</code></a>. Checking the raw service definition metadata (<code>spatialReference</code>) reveals it is projected in <strong>EPSG:3857</strong> (WGS 84 / Pseudo-Mercator) with linear units in meters. It comes with a precalculated <code>Shape__Area</code> of 824,638,033.81 m² and a <code>Shape__Length</code> of 556,807.89 m. Topological analysis of the service geometry reveals <strong>690 rings</strong> (755 when delivered in Web Mercator), of which <strong>686 rings are smaller than 900 m²</strong>, the footprint of a single 30 m Landsat cell.</li>
+      <li><strong>Satellite raster archive:</strong> Landsat 8–9 operational multispectral surface reflectance imagery accessed via the <a href="https://livingatlas.arcgis.com/landsatexplorer/" target="_blank" rel="noopener">Esri Landsat Explorer</a>. The fire progression was verified by comparing pre-fire acquisition on <strong>20 June 2016</strong> against post-containment acquisition on <strong>26 October 2016</strong> (both from the same orbit track with under 5% cloud cover) rendered in Short-wave Infrared at a ground cell resolution of 30 meters.</li>
+      <li><strong>Terrain elevation surface:</strong> The Esri World Elevation Surface accessed through ArcGIS Scene Viewer to drape the perimeter and compute transverse slope profiles across the Santa Lucia topography.</li>
+    </ul>
+
+    <h2>The method</h2>
+    <p>To quantify how coordinate systems and physical models dictate area measurement, I evaluated the perimeter across three separate movements:</p>
+    <ol>
+      <li><strong>Coordinate frame comparison:</strong> Evaluated planar Cartesian calculation against geodetic calculation on the WGS 84 ellipsoid directly inside Map Viewer using this Arcade pop-up attribute expression:
+        <pre><code>// Two ways to measure one polygon.
+var planar = Area($feature, 'square-kilometers');
+var globe = AreaGeodetic($feature, 'square-kilometers');
+var acres = AreaGeodetic($feature, 'acres');
+
+return 'planar ' + Round(planar, 3) + ' km2'
+ + TextFormatting.NewLine
+ + 'geodetic ' + Round(globe, 3) + ' km2'
+ + TextFormatting.NewLine
+ + 'geodetic ' + Round(acres, 0) + ' acres'
+ + TextFormatting.NewLine
+ + 'ratio ' + Round(planar / globe, 4);</code></pre>
+      </li>
+      <li><strong>Sensor resolution sensitivity:</strong> Traced vector boundaries against Landsat pixels to calculate the uncertainty band (&plusmn; perimeter &times; cell size) across four satellite sensor resolutions (10 m Sentinel-2, 30 m Landsat, 250 m MODIS, and a 500 m global product).</li>
+      <li><strong>Topographic slope and vertical datums:</strong> Generated two topographic elevation cross-sections in Scene Viewer across the steepest flanks of the burn scar, scaling 2D planimetric shadow area to 3D surface area using the planar correction factor 1 / cos(&theta;). In addition, ellipsoidal GPS height (<em>h</em> = 900 m) was transformed to orthometric height (<em>H</em> = <em>h</em> &minus; <em>N</em>) using geoid undulations (<em>N</em>) derived from three global geopotential gravity models (EGM2008, EGM96, and EGM84) via GeographicLib.</li>
+    </ol>
+
+    <h2>The map</h2>
+
+    <h3>Interactive Map Viewer</h3>
+    <iframe width="700" height="600" style="max-width: 100%; border: 1px solid #ccc;" allow="local-network-access; geolocation" title="Lab 3 · One perimeter · Ithemba" src="https://www.arcgis.com/apps/mapviewer/index.html?configurableview=true&webmap=d66cb7f9e6154b099b18c564455cc586&theme=dark&share=true&scroll=false&center=-121.6995742013276,36.324047714385856&scale=288895.277144"></iframe>
+    <p><em>Interactive 2D web map: <a href="https://www.arcgis.com/apps/mapviewer/index.html?webmap=d66cb7f9e6154b099b18c564455cc586" target="_blank" rel="noopener">Open Soberanes Map Viewer in ArcGIS Online</a>.</em></p>
+
+    <h3>Interactive Scene Viewer (3D Terrain)</h3>
+    <iframe width="800" height="600" style="max-width: 100%; border: 1px solid #ccc;" frameborder="0" scrolling="no" allowfullscreen src="https://arcg.is/4CHTf3"></iframe>
+    <p><em>Interactive 3D scene: <a href="https://arcg.is/4CHTf3" target="_blank" rel="noopener">Open Soberanes Terrain Scene in Scene Viewer</a>.</em></p>
+
+    <h3>Figure 1: Pre- and post-fire swipe</h3>
+    <figure>
+      <img src="media/lab3/Fig1.png" alt="Landsat swipe showing unburned green forest on June 20, 2016 versus dark red burn scar on October 26, 2016 in short-wave infrared.">
+      <figcaption>Figure 1 · Landsat 8 Short-wave Infrared (SWIR) swipe. Left: Pre-fire condition (20 June 2016). Right: Post-containment fire scar (26 October 2016). Display frame: Web Mercator (EPSG:3857); resolution: 30 m cell grid. <a href="https://livingatlas.arcgis.com/landsatexplorer/#mapCenter=-121.72177%2C36.32617%2C12.000&mode=swipe&mainScene=2016-06-20%7CShort-wave+Infrared+for+Visualization%7C4816544&secondaryScene=2016-10-26%7CShort-wave+Infrared+for+Visualization%7C5942425&hideBottomPanel=true" target="_blank" rel="noopener">Explore interactive scene in Landsat Explorer</a>.</figcaption>
+    </figure>
+
+    <figure>
+      <video controls playsinline style="max-width: 100%;">
+        <source src="media/lab3/video.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <figcaption>Video capture · Interactive swipe transition in Esri Landsat Explorer demonstrating the distinct SWIR spectral response of the Soberanes burn scar across the rugged Santa Lucia coastal terrain.</figcaption>
+    </figure>
+
+    <h3>Figure 2 &amp; Figure 3: Cell grid vs. vector boundary</h3>
+    <figure>
+      <img src="media/lab3/fig2.png" alt="Zoomed view of burn edge showing individual 30 meter square raster pixels near Forest Route 19S04.">
+      <figcaption>Figure 2 · Raster cell grid at burn boundary along Forest Route 19S04. Individual 30 m &times; 30 m Landsat cells displayed at 1:2,257 scale. Display frame: Web Mercator (EPSG:3857); native grid cell size: 30 m.</figcaption>
+    </figure>
+
+    <figure>
+      <img src="media/lab3/fig3.png" alt="Vector boundary line overlaid on the basemap at the identical zoom scale showing smooth sub-pixel segments.">
+      <figcaption>Figure 3 · Perimeter vector outline overlaid across the identical ridge section. Segments average 17 m between vertices—shorter than the 30 m sensor pixels that recorded them. Coordinate frame: Web Mercator (EPSG:3857).</figcaption>
+    </figure>
+
+    <h3>Figure 4: 3D Terrain and elevation slope profiles</h3>
+    <figure>
+      <img src="media/lab3/fig4.png" alt="3D scene perspective showing the red burn perimeter draped across the steep mountains of the Big Sur coast.">
+      <figcaption>Figure 4 · 3D Scene Viewer visualization looking southeast down the Santa Lucia Range. The fire perimeter rises from sea level at Highway 1 to over 1,200 m elevation. Vertical datum: EGM2008 geoid surface; horizontal datum: WGS 84.</figcaption>
+    </figure>
+
+    <figure>
+      <img src="media/lab3/profile1.png" alt="Scene view showing profile 1 line drawn across the steepest canyon terrain.">
+      <figcaption>Figure 4A · Elevation profile 1 section across the northern fire flank (20.3 km length, traversing from 68 m to 1,231 m elevation). Average slope: 19.6° uphill, 20.0° downhill; max slope: 45.5°.</figcaption>
+    </figure>
+
+    <figure>
+      <img src="media/lab3/profile1_stats.png" alt="Chart of elevation profile 1 showing rugged mountain cross section and slope statistics.">
+      <figcaption>Figure 4B · Profile 1 statistical readout from Scene Viewer Elevation Profile tool. Average slope angle &theta; &approx; 20.0°.</figcaption>
+    </figure>
+
+    <figure>
+      <img src="media/lab3/profile2.png" alt="Elevation profile 2 across the central interior burn scar showing 35.1 km length and 17.4 degree average slope.">
+      <figcaption>Figure 4C · Profile 2 section across the central fire complex (35.1 km length, 6,102 m cumulative gain). Average slope: 17.1° uphill, 17.4° downhill; max slope: 53.7°.</figcaption>
+    </figure>
+
+    <h2>What I found</h2>
+
+    <pre><code>Areas measured geodetically on the WGS 84 ellipsoid.
+Source geometry stored in EPSG:3857 (Web Mercator);
+planar areas in that frame are inflated by sec^2(phi)
+and are reported here only for comparison.</code></pre>
+
+    <h3>1. The Frames Table</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Frame</th>
+          <th>Area (km²)</th>
+          <th>How you got it</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Web Mercator, planar</td>
+          <td>824.323</td>
+          <td>Shape__Area and Area()</td>
+        </tr>
+        <tr>
+          <td>WGS 84 ellipsoid, geodetic</td>
+          <td>533.891</td>
+          <td>AreaGeodetic()</td>
+        </tr>
+        <tr>
+          <td>Your hand-traced polygon</td>
+          <td>564.460</td>
+          <td>Measurement tool</td>
+        </tr>
+        <tr>
+          <td>The published incident figure</td>
+          <td>534.699</td>
+          <td>132,127 acres converted by you</td>
+        </tr>
+        <tr>
+          <td>UTM zone 10N, planar</td>
+          <td>533.929</td>
+          <td>Given, computed for you</td>
+        </tr>
+        <tr>
+          <td>California Albers, planar</td>
+          <td>534.182</td>
+          <td>Given, computed for you</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p></p>
+
+    <p><strong>Areal distortion prediction vs. observation:</strong> At latitude &phi; = 36.326°, the theoretical Web Mercator areal scale factor is sec²(36.326°) = 1 / cos²(36.326°) &approx; 1.5406 (+54.06% inflation). The ratio of planar area to geodetic area returned by Arcade is 824.323 / 533.891 &approx; 1.5440. They agree to within two parts in a thousand. Web Mercator invents over <strong>290 km² of non-existent burned land</strong> simply through projection choice.</p>
+
+    <h3>2. Sensitivity Table: Web Mercator Inflation by Latitude</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Place</th>
+          <th>Latitude</th>
+          <th>Web Mercator areal inflation (sec²&phi; &minus; 1)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Equator</td>
+          <td>0.000°</td>
+          <td>0.00%</td>
+        </tr>
+        <tr>
+          <td>Gibson Desert, Western Australia</td>
+          <td>&minus;23.285°</td>
+          <td>18.52%</td>
+        </tr>
+        <tr>
+          <td>This campus, Pudong</td>
+          <td>31.162°</td>
+          <td>36.57%</td>
+        </tr>
+        <tr>
+          <td>Madeira, Portugal</td>
+          <td>32.750°</td>
+          <td>41.37%</td>
+        </tr>
+        <tr>
+          <td>Soberanes Fire, California</td>
+          <td>36.326°</td>
+          <td>54.06%</td>
+        </tr>
+        <tr>
+          <td>Fairbanks, Alaska</td>
+          <td>64.840°</td>
+          <td>453.25%</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>3. Sensitivity Table: Sensor Grid Uncertainty Bands</h3>
+    <p>Using the geodetic perimeter (<em>P</em> = 441.955 km) and geodetic area (<em>A</em> = 534.182 km²):</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Sensor</th>
+          <th>Cell size</th>
+          <th>Uncertainty band (<em>P</em> &times; cell)</th>
+          <th>As a share of the area</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Sentinel-2</td>
+          <td>10 m</td>
+          <td>4.420 km²</td>
+          <td>0.8%</td>
+        </tr>
+        <tr>
+          <td>Landsat 8–9</td>
+          <td>30 m</td>
+          <td>13.259 km²</td>
+          <td>2.5%</td>
+        </tr>
+        <tr>
+          <td>MODIS</td>
+          <td>250 m</td>
+          <td>110.489 km²</td>
+          <td>20.7%</td>
+        </tr>
+        <tr>
+          <td>Coarse global product</td>
+          <td>500 m</td>
+          <td>220.977 km²</td>
+          <td>41.4%</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>4. Topographic Surface Slope Correction</h3>
+    <p>Planimetric area represents only the horizontal ground shadow. Computing true 3D surface area across mountain topography requires scaling by 1 / cos(&theta;):</p>
+    <ul>
+      <li><strong>Profile 1 (steepest cross-section):</strong> Average slope &theta; = 20.0° &rarr; 1 / cos(20.0°) = 1.0642 (+6.4% ground surface) &rarr; 534.182 &times; 1.0642 &approx; <strong>568.48 km²</strong> (140,474 acres).</li>
+      <li><strong>Profile 2 (longitudinal transect):</strong> Average slope &theta; = 17.4° &rarr; 1 / cos(17.4°) = 1.0479 (+4.8% ground surface) &rarr; 534.182 &times; 1.0479 &approx; <strong>559.77 km²</strong> (138,322 acres).</li>
+    </ul>
+    <p>Because Jensen's inequality guarantees that the average of 1 / cos(&theta;) is always strictly greater than 1 / cos(average &theta;), this range establishes that <strong>at least 560 to 568 km²</strong> of actual physical terrain was burned by the fire.</p>
+
+    <h3>5. Vertical Datum and Geoid Separation Table</h3>
+    <p>Geoid undulation (<em>N</em>) computed across three global geopotential gravity models from GeographicLib:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Point</th>
+          <th>EGM2008 (m)</th>
+          <th>EGM96 (m)</th>
+          <th>EGM84 (m)</th>
+          <th>Spread (m)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Soberanes Fire (36.3262°, &minus;121.7218°)</td>
+          <td>&minus;32.9779</td>
+          <td>&minus;34.0791</td>
+          <td>&minus;34.7582</td>
+          <td>1.78 m</td>
+        </tr>
+        <tr>
+          <td>This campus, Pudong (31.1622°, 121.5545°)</td>
+          <td>+12.1533</td>
+          <td>+11.4482</td>
+          <td>+11.6075</td>
+          <td>0.71 m</td>
+        </tr>
+        <tr>
+          <td>Mount Everest (27.9881°, 86.9250°)</td>
+          <td>&minus;28.4939</td>
+          <td>&minus;28.7408</td>
+          <td>&minus;30.4587</td>
+          <td>1.96 m</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p></p>
+
+    <p><strong>Height conversion (<em>h</em> &rarr; <em>H</em>):</strong> For a GPS receiver reporting ellipsoidal height <em>h</em> = 900.00 m at the fire perimeter, the true orthometric height above the gravity geoid is:</p>
+    <ul>
+      <li>Under <strong>EGM2008</strong>: <em>H</em> = <em>h</em> &minus; <em>N</em> = 900 &minus; (&minus;32.9779) = <strong>932.98 m</strong></li>
+      <li>Under <strong>EGM96</strong>: <em>H</em> = 900 &minus; (&minus;34.0791) = <strong>934.08 m</strong></li>
+      <li>Under <strong>EGM84</strong>: <em>H</em> = 900 &minus; (&minus;34.7582) = <strong>934.76 m</strong></li>
+    </ul>
+
+    <p><strong>Published number recommendation:</strong> For official fire suppression and policy reporting, I would publish <strong>534.18 km² (132,000 acres)</strong> in an equal-area planar projection (California Albers Teale, EPSG:3310) or geodetically on the WGS 84 ellipsoid. If trusted without verification, the layer's uncorrected Web Mercator <code>Shape__Area</code> field reports <strong>824.64 km²</strong>, which overstates the burned land by <strong>54.4% (+290.46 km²)</strong>.</p>
+
+    <h2>What this does not show</h2>
+    <ul>
+      <li><strong>Coastline paradox and resolution limits on perimeter:</strong> While the geodetic area of 534 km² is robust to scale variations, the layer's reported perimeter of 556.8 km (planar) / 441.9 km (geodetic) is an artifact of raster vectorization. With an isoperimetric ratio of 4&pi;<em>A</em> / <em>P</em>² &approx; 0.034, over 80% of segment edges are shorter than 30 m, and 686 interior sliver rings are smaller than a single Landsat pixel (900 m²). Generalizing the boundary to the sensor's genuine 30 m resolution truncates perimeter length by over 6% while shifting area by under 0.05%.</li>
+      <li><strong>Slope corrections are lower bounds:</strong> The 3D surface area calculation (+4.8% to +6.4%) assumes average planar slopes across linear profiles. Because real topography is fractured into ravines and cliffs where steep facets expand surface area exponentially faster than flats diminish it, actual ground surface burned is strictly larger than these estimates.</li>
+      <li><strong>Gravity geoid uncertainty:</strong> Ellipsoidal GPS heights cannot model post-fire hydrologic runoff, debris flows, or sediment transport because water flows strictly down the geopotential gradient of the geoid. The 1.78 m model spread between EGM2008 and EGM84 represents an unresolved vertical datum ambiguity that can skew watershed flow routing.</li>
+    </ul>
+
+    <h2>Reflection and AI-usage</h2>
+    <p>The written reflection addressing the published figure, error rank reversal conditions and affected financial/policy parties, along with the AI-usage disclosure, has been submitted through Brightspace.</p>
+
+    <a class="back" href="../index.html#labs">&larr; Back to all labs</a>
+
+  </div>
+</article>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap wrap-narrow">
+    <p>Ithemba Ndakavambaani · SOCS-SHU 205 · NYU Shanghai · Fall 2026</p>
+  </div>
+</footer>
+
+</body>
+</html>

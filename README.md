@@ -12,6 +12,7 @@ style.css         every colour, size and spacing rule on the site
 labs/lab-0.html  lab entry template — copy this file for each new lab
 labs/lab-01.html lab entry with Soho cholera analysis
 labs/lab-02.html lab entry with 2016 election map analysis
+labs/lab-03.html lab entry with Soberanes Fire perimeter analysis
 labs/media/      folder containing images for all labs
 .nojekyll        tells GitHub Pages to serve the files exactly as written
 ```
