@@ -14,6 +14,7 @@ labs/lab-01.html lab entry with Soho cholera analysis
 labs/lab-02.html lab entry with 2016 election map analysis
 labs/lab-03.html lab entry with Soberanes Fire perimeter analysis
 labs/lab-04.html lab entry with raster cell size analysis
+labs/lab-05.html lab entry with farming analysis
 labs/ps-01.html  problem set 1: 2022 Shanghai lockdown analysis
 labs/media/      folder containing images for all labs
 .nojekyll        tells GitHub Pages to serve the files exactly as written
